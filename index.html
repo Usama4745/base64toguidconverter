@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 URL to GUID Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        textarea {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            font-size: 13px;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        button.secondary:hover {
+            background: #e0e0e0;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .output-box {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            min-height: 60px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .output-box.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #004085;
+            line-height: 1.6;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .copy-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        .result-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .result-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label-small {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Base64 URL ↔ GUID Converter</h1>
+        <p class="subtitle">Convert between Base64 URL strings and GUIDs instantly</p>
+
+        <div class="info-box">
+            <strong>ℹ️ About:</strong> This tool converts between Base64 URL encoded strings (22 characters) and standard GUID format (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx). Perfect for API integrations and data encoding.
+        </div>
+
+        <div class="alert" id="alert"></div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('tab1')">Base64 URL → GUID</button>
+            <button class="tab-button" onclick="switchTab('tab2')">GUID → Base64 URL</button>
+        </div>
+
+        <!-- Tab 1: Base64 URL to GUID -->
+        <div id="tab1" class="tab-content active">
+            <div class="section">
+                <label for="base64Input">Enter Base64 URL String</label>
+                <input 
+                    type="text" 
+                    id="base64Input" 
+                    placeholder="Paste your base64 URL here (22 characters)"
+                    maxlength="22"
+                />
+                <small style="color: #999; display: block; margin-top: 5px;">
+                    Length: <span id="base64Length">0</span>/22 characters
+                </small>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="convertBase64ToGuid()">Convert to GUID</button>
+                <button class="secondary" onclick="clearTab1()">Clear</button>
+            </div>
+
+            <div class="section">
+                <label>Result</label>
+                <div class="output-box empty" id="guidOutput">
+                    Your GUID will appear here...
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('guidOutput')" style="margin-top: 10px;">
+                    📋 Copy Result
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab 2: GUID to Base64 URL -->
+        <div id="tab2" class="tab-content">
+            <div class="section">
+                <label for="guidInput">Enter GUID</label>
+                <input 
+                    type="text" 
+                    id="guidInput" 
+                    placeholder="Paste your GUID here (e.g., 550e8400-e29b-41d4-a716-446655440000)"
+                />
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button onclick="convertGuidToBase64()">Convert to Base64 URL</button>
+                <button class="secondary" onclick="clearTab2()">Clear</button>
+            </div>
+
+            <div class="section">
+                <label>Result</label>
+                <div class="output-box empty" id="base64Output">
+                    Your Base64 URL will appear here...
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('base64Output')" style="margin-top: 10px;">
+                    📋 Copy Result
+                </button>
+            </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 30px; background: #fff3cd; border-left-color: #ffc107; color: #856404;">
+            <strong>💡 Tip:</strong> Base64 URL strings use dashes (-) instead of plus signs (+) and underscores (_) instead of forward slashes (/) for URL-safe encoding.
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Converts a base64 URL string to a GUID
+         */
+        function base64UrlToGuid(base64Url) {
+            if (!base64Url || typeof base64Url !== 'string' || base64Url.length !== 22) {
+                throw new Error('Invalid base64 URL string. Must be exactly 22 characters.');
+            }
+
+            // Convert base64 URL to standard base64
+            let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/') + '==';
+            
+            // Decode base64 to binary string
+            let binaryString;
+            try {
+                binaryString = atob(base64);
+            } catch (e) {
+                throw new Error('Invalid base64 string: ' + e.message);
+            }
+
+            if (binaryString.length !== 16) {
+                throw new Error('Decoded data must be exactly 16 bytes for a GUID.');
+            }
+
+            // Build GUID string directly
+            let guid = '';
+            
+            for (let i = 0; i < 16; i++) {
+                const byte = binaryString.charCodeAt(i);
+                const hex = byte.toString(16).padStart(2, '0');
+                guid += hex;
+                
+                // Add dashes at the right positions
+                if (i === 3 || i === 5 || i === 7 || i === 9) {
+                    guid += '-';
+                }
+            }
+
+            return guid;
+        }
+
+        /**
+         * Converts a GUID to base64 URL string
+         */
+        function guidToBase64Url(guid) {
+            if (!guid || typeof guid !== 'string') {
+                throw new Error('Invalid GUID.');
+            }
+
+            // Remove dashes
+            const cleanGuid = guid.replace(/-/g, '').toLowerCase();
+            
+            if (cleanGuid.length !== 32) {
+                throw new Error('Invalid GUID format. Must be 32 hex characters (without dashes).');
+            }
+
+            // Validate hex characters
+            if (!/^[0-9a-f]{32}$/.test(cleanGuid)) {
+                throw new Error('Invalid GUID format. Must contain only hexadecimal characters.');
+            }
+
+            // Convert hex string to binary string
+            let binaryString = '';
+            for (let i = 0; i < cleanGuid.length; i += 2) {
+                binaryString += String.fromCharCode(parseInt(cleanGuid.substr(i, 2), 16));
+            }
+
+            // Encode to base64
+            const base64 = btoa(binaryString);
+
+            // Convert to base64 URL
+            return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        }
+
+        // UI Functions
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Clear alerts
+            clearAlert();
+        }
+
+        function convertBase64ToGuid() {
+            const input = document.getElementById('base64Input').value.trim();
+            const output = document.getElementById('guidOutput');
+
+            try {
+                if (!input) {
+                    showAlert('Please enter a Base64 URL string', 'error');
+                    return;
+                }
+
+                const guid = base64UrlToGuid(input);
+                output.textContent = guid;
+                output.classList.remove('empty');
+                showAlert('Successfully converted to GUID!', 'success');
+            } catch (error) {
+                output.textContent = '';
+                output.classList.add('empty');
+                showAlert(error.message, 'error');
+            }
+        }
+
+        function convertGuidToBase64() {
+            const input = document.getElementById('guidInput').value.trim();
+            const output = document.getElementById('base64Output');
+
+            try {
+                if (!input) {
+                    showAlert('Please enter a GUID', 'error');
+                    return;
+                }
+
+                const base64Url = guidToBase64Url(input);
+                output.textContent = base64Url;
+                output.classList.remove('empty');
+                showAlert('Successfully converted to Base64 URL!', 'success');
+            } catch (error) {
+                output.textContent = '';
+                output.classList.add('empty');
+                showAlert(error.message, 'error');
+            }
+        }
+
+        function clearTab1() {
+            document.getElementById('base64Input').value = '';
+            document.getElementById('guidOutput').textContent = 'Your GUID will appear here...';
+            document.getElementById('guidOutput').classList.add('empty');
+            document.getElementById('base64Length').textContent = '0';
+            clearAlert();
+        }
+
+        function clearTab2() {
+            document.getElementById('guidInput').value = '';
+            document.getElementById('base64Output').textContent = 'Your Base64 URL will appear here...';
+            document.getElementById('base64Output').classList.add('empty');
+            clearAlert();
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = 'alert ' + type;
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearAlert() {
+            const alert = document.getElementById('alert');
+            alert.className = 'alert';
+            alert.style.display = 'none';
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+
+            if (!text || text.includes('will appear here')) {
+                showAlert('Nothing to copy!', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.classList.add('copied');
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+
+                showAlert('Copied to clipboard!', 'success');
+            }).catch(() => {
+                showAlert('Failed to copy to clipboard', 'error');
+            });
+        }
+
+        // Update character count for base64 input
+        document.getElementById('base64Input')?.addEventListener('input', function() {
+            document.getElementById('base64Length').textContent = this.value.length;
+        });
+
+        // Allow Enter key to convert
+        document.getElementById('base64Input')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') convertBase64ToGuid();
+        });
+
+        document.getElementById('guidInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') convertGuidToBase64();
+        });
+    </script>
+</body>
+</html>
